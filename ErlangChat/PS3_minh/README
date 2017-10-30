@@ -1,0 +1,13 @@
+README for COMP50CP PS3
+by Minh D. Nguyen
+Oct 3, 2017
+
+Time taken for this assignment: ~6 hours
+
+I consulted http://erlang.org/doc/man/gen_server.html to understand the
+Erlang OTP gen_server.
+I consulted the Python documentation at
+https://docs.python.org/2/library/functions.html#reduce to understand
+Python 'reduce' function.
+
+I did not look at any available solutions to any of these exercises.

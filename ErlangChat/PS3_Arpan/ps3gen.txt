@@ -1,0 +1,99 @@
+-module[chat].
+
+-export[start_link/0, stop/0].
+-export[init/1, handle_call/3, handle_cast/2, terminate/2].
+-export[join_room/3].
+-behavior(gen_server).
+
+
+
+%% Exported Client Functions
+%% Operation & Maintenance API
+
+
+start_link() ->
+	gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
+
+stop() ->
+	gen_server:cast(?MODULE, stop).
+
+
+	
+%% Customer Services API
+
+
+join_server(Node, Room, Name) ->
+	% spawn a process that listens for messages
+	ReceivePid = spawn(?MODULE, Msg_Receive, []),
+
+	% subscribe to the chat room
+	% you are automatically subscribed when you join the server
+	gen_server:cast({Room, Node}, {message, ReceivePid, "--subscribe"},
+
+	% message sending function
+	msg_send(Node, Room, Name, ReceivePid).
+
+msg_receive() ->
+	receive
+		{message, Name, Msg} ->
+			io:format("~p: ~p~n", [Name, Msg]),
+	end,
+	msg_receive().
+
+msg_send(Node, Room, Name, Pid) ->
+	Msg = io:get_line("Enter a message:"),
+
+	case Msg of
+		"--list" -> 
+			gen_server:call({Room, Node}, {message, "--list"}),
+			msg_send(Node, Room, Name, Pid);
+		"--quit" ->
+			gen_server:cast({Room, Node}, {message, Pid, "--quit"}),
+			ok;
+		true ->
+			gen_server:call({Room, Node}, {message, Name, Msg}),
+			msg_send(Node, Room, Name, Pid)
+	end.
+
+
+
+%% Callback Functions
+
+
+init() ->
+	{ok, []}.
+
+terminate(_Reason, _LoopData) ->
+	ok.
+
+handle_cast(stop, LoopData) ->
+	{stop, normal, LoopData}.
+
+handle_call({message, "--list"}, _From, Subscribers) ->
+	list_subscribers(Subscribers),
+	{reply, ok, Subscribers}.
+
+% Helper
+list_subscribers([])-> [];
+list_subscribers([H|T]) ->
+    	io:format("~p~n", [H]),
+	list_subscribers(T).
+
+handle_call({message, Name, Message}, _From, Subscribers) ->
+	lists:map(fun(X) -> X ! {message, Name, Msg}, Subscribers),
+	{reply, ok, Subscribers}.
+
+handle_cast({message, Pid, "--subscribe"}, _From, Subscribers) ->
+	NewSubscribers = [Pid | Subscribers],
+	{noreply, NewSubscribers}.
+
+handle_cast({message, Pid, "--quit"}, _From, Subscribers) ->
+	NewSubscribers = lists:delete(Pid, Subscribers),
+	{noreply, NewSubscribers}.
+
+
+
+
+
+
+

@@ -33,7 +33,11 @@ send_message(Username, RecPid, ServNode, Room) ->
             io:format("Subscribers: ~p~n", [AllSubs]),
             send_message(Username, RecPid, ServNode, Room);
         true ->
-            gen_server:cast({Room, ServNode}, {send, Username, Line, timestamp}),
+            %% Calculate Timestamp in the format YYYY-MM-DD, HH:MM:SS
+            %% Time is in UTC
+            {{Year, Month, Day}, {Hour, Minute, Second}} = calendar:now_to_datetime(erlang:timestamp()),
+            Timestamp = lists:flatten(io_lib:format("~4..0w-~2..0w-~2..0w, ~2..0w:~2..0w:~2..0w",[Year,Month,Day,Hour,Minute,Second])),
+            gen_server:cast({Room, ServNode}, {send, Username, Line, Timestamp}),
             send_message(Username, RecPid, ServNode, Room)
     end.
 

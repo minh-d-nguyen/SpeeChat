@@ -71,7 +71,11 @@ handle_call({subscribe, Pid, Username}, _From, {CurrSubs, Pids, Transcript}) ->
     {reply, ok, {[Username | CurrSubs], [Pid | Pids], Transcript}};
 
 handle_call({subscribers}, _From, {CurrSubs, Pids, Transcript}) ->
-    {reply, CurrSubs, {CurrSubs, Pids, Transcript}}.
+    {reply, CurrSubs, {CurrSubs, Pids, Transcript}};
+
+handle_call({unsubscribe, Username, Pid}, _From, {CurrentSubs, Pids, Transcript}) ->
+    {RestUsers, RestPids} = unsubscribe(Username, Pid, CurrentSubs, Pids),
+    {reply, Transcript, {RestUsers, RestPids, Transcript}}.
 
 %%--------------------------------------------------------------------
 %% @private
@@ -86,11 +90,7 @@ handle_call({subscribers}, _From, {CurrSubs, Pids, Transcript}) ->
 handle_cast({send, Username, Msg, Time}, {CurrentSubs, Pids, Transcript}) ->
     send_msg_to_all(Username, Msg, Pids),
     io:format('~p~n', [Transcript]),
-    {noreply, {CurrentSubs, Pids, [{Username, Msg, Time} | Transcript]}};
-
-handle_cast({unsubscribe, Username, Pid}, {CurrentSubs, Pids, Transcript}) ->
-    {RestUsers, RestPids} = unsubscribe(Username, Pid, CurrentSubs, Pids),
-    {noreply, {RestUsers, RestPids, Transcript}}.
+    {noreply, {CurrentSubs, Pids, [{Username, Msg, Time} | Transcript]}}.
 
 %%--------------------------------------------------------------------
 %% @private

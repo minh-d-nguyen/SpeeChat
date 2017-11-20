@@ -19,6 +19,11 @@ get_message() ->
             get_message()
     end.
 
+print_transcript([]) -> ok;
+print_transcript([{Username, Msg, Time} | Rest]) ->
+    io:format("~p ~p:~p~n", [Time, Username, Msg]),
+    print_transcript(Rest).
+
 %% send_message
 %% Take in the username, the PID of the message receiving process, the Server
 %% reference, handle input from users apprpriately.
@@ -26,7 +31,14 @@ send_message(Username, RecPid, ServNode, Room) ->
     Line = io:get_line("Enter a message: "),
     if
         Line == "--quit\n" ->
-            gen_server:cast({Room, ServNode}, {unsubscribe, Username, RecPid}),
+            Transcript = gen_server:call({Room, ServNode}, {unsubscribe, Username, RecPid}),
+            Sorted = lists:sort(
+                fun({UsernameA, MsgA, TimeA}, {UsernameB, MsgB, TimeB}) ->
+                    {TimeA, UsernameA, MsgA} =< {TimeB, UsernameB, MsgB} end,
+                Transcript
+            ),
+            io:format("Transcript:~n"),
+            print_transcript(Sorted),
             ok;
         Line == "--list\n" ->
             AllSubs = gen_server:call({Room, ServNode}, {subscribers}),

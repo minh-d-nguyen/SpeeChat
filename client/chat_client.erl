@@ -23,7 +23,10 @@ get_message() ->
 %% Take in the username, the PID of the message receiving process, the Server
 %% reference, handle input from users apprpriately.
 send_message(Username, RecPid, ServNode, Room) ->
-    Line = io:get_line("Enter a message: "),
+    {ok, P} = python:start([{python, "python3"}]),
+    %%Line = io:get_line("Enter a message: "),
+    Line = python:call(P, get_speech, get_speech, []), 
+    python:stop(P),
     if
         Line == "--quit\n" ->
             gen_server:cast({Room, ServNode}, {unsubscribe, Username, RecPid}),

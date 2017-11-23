@@ -68,7 +68,7 @@ init([]) ->
 %% @end
 %%--------------------------------------------------------------------
 handle_call({subscribe, Pid, Username}, _From, {CurrSubs, Pids, Transcript}) ->
-    {reply, ok, {[Username | CurrSubs], [Pid | Pids], Transcript}};
+    {reply, Transcript, {[Username | CurrSubs], [Pid | Pids], Transcript}};
 
 handle_call({subscribers}, _From, {CurrSubs, Pids, Transcript}) ->
     {reply, CurrSubs, {CurrSubs, Pids, Transcript}};

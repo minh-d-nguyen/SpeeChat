@@ -56,5 +56,6 @@ send_message(Username, RecPid, ServNode, Room) ->
 %% Exported Client Functions
 join_room(ServerNode, Room, Username) ->
     Pid = spawn(chat_client, get_message, []),
-    gen_server:call({Room, ServerNode}, {subscribe, Pid, Username}),
+    Transcript = gen_server:call({Room, ServerNode}, {subscribe, Pid, Username}),
+    print_transcript(Transcript),
     send_message(Username, Pid, ServerNode, Room).

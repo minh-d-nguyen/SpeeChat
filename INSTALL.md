@@ -17,3 +17,5 @@ git clone https://github.com/hdima/erlport.git
 cd erlport/
 sudo make
 sudo ./release
+
+TODO: Set PATH/PYTHONPATH and ERL_LIBS. Install PyQt5. Install ZeroMQ. Install erlzmq.

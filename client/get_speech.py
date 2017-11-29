@@ -2,7 +2,9 @@
 # Requires PyAudio and PySpeech.
 import os
 import sys
+from contextlib import redirect_stderr
 import speech_recognition as sr
+
 
 def get_speech():
     # Speech recognition using Google Speech Recognition
@@ -25,3 +27,4 @@ def get_speech():
     except sr.RequestError as e:
         print("Could not request results from Google Speech Recognition service; {0}".format(e))
 
+get_speech()

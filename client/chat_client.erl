@@ -27,11 +27,9 @@ print_transcript([{Username, Msg, Time} | Rest]) ->
 %% send_message
 %% Take in the username, the PID of the message receiving process, the Server
 %% reference, handle input from users apprpriately.
-send_message(Username, RecPid, ServNode, Room) ->
-    {ok, P} = python:start([{python, "python3"}]),
+send_message(Username, RecPid, ServNode, Room, PyPid) ->
     %%Line = io:get_line("Enter a message: "),
-    Line = python:call(P, get_speech, get_speech, []), 
-    python:stop(P),
+    Line = python:call(PyPid, get_speech, get_speech, []), 
     if
         Line == "--quit\n" ->
             Transcript = gen_server:call({Room, ServNode}, {unsubscribe, Username, RecPid}),
@@ -46,14 +44,18 @@ send_message(Username, RecPid, ServNode, Room) ->
         Line == "--list\n" ->
             AllSubs = gen_server:call({Room, ServNode}, {subscribers}),
             io:format("Subscribers: ~p~n", [AllSubs]),
-            send_message(Username, RecPid, ServNode, Room);
+            send_message(Username, RecPid, ServNode, Room, PyPid);
+        Line == undefined ->
+            %% If message isn't understood, send no message to server & recurse
+            send_message(Username, RecPid, ServNode, Room, PyPid);
         true ->
             %% Calculate Timestamp in the format YYYY-MM-DD, HH:MM:SS
             %% Time is in UTC
+            io:format("MESSAGE: ~p", [Line]),
             {{Year, Month, Day}, {Hour, Minute, Second}} = calendar:now_to_datetime(erlang:timestamp()),
             Timestamp = lists:flatten(io_lib:format("~4..0w-~2..0w-~2..0w, ~2..0w:~2..0w:~2..0w",[Year,Month,Day,Hour,Minute,Second])),
             gen_server:cast({Room, ServNode}, {send, Username, Line, Timestamp}),
-            send_message(Username, RecPid, ServNode, Room)
+            send_message(Username, RecPid, ServNode, Room, PyPid)
     end.
 
 %% Exported Client Functions
@@ -61,4 +63,9 @@ join_room(ServerNode, Room, Username) ->
     Pid = spawn(chat_client, get_message, []),
     Transcript = gen_server:call({Room, ServerNode}, {subscribe, Pid, Username}),
     print_transcript(Transcript),
-    send_message(Username, Pid, ServerNode, Room).
+    
+    {ok, PyPid} = python:start([{python, "python3"}]),
+    send_message(Username, Pid, ServerNode, Room, PyPid),
+    python:stop(PyPid).
+
+

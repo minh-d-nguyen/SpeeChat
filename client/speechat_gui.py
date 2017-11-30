@@ -1,8 +1,6 @@
 import sys
 import get_speech
 import zmq
-from multiprocessing import Process, Queue, Pipe
-from threading import Thread
 from erlport.erlang import cast, set_message_handler
 from erlport.erlterms import Atom
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -53,7 +51,7 @@ class Ui_SpeeChatGUI(object):
         SpeeChatGUI.setWindowTitle(_translate("SpeeChatGUI", "SpeeChatGUI"))
         self.MsgLabel.setText(_translate("SpeeChatGUI", "Your message:"))
         self.SendBtn.setText(_translate("SpeeChatGUI", "Send"))
-        self.CancelBtn.setText(_translate("SpeeChatGUI", "Cancel"))
+        self.CancelBtn.setText(_translate("SpeeChatGUI", "Quit"))
 
 
 class ZeroMQ_Listener(QObject):

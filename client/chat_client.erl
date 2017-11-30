@@ -36,7 +36,7 @@ send_message(Username, RecPid, ServNode, Room, PythonPID) ->
             Line = Msg,
             if
                 Line == <<"--quit">> ->
-                    Transcript = gen_server:call({Room, ServNode}, {unsubscribe, Username, RecPid}),
+                    Transcript = gen_server:call({global, Room}, {unsubscribe, Username, RecPid}),
                     Sorted = lists:sort(
                         fun({UsernameA, MsgA, TimeA}, {UsernameB, MsgB, TimeB}) ->
                             {TimeA, UsernameA, MsgA} =< {TimeB, UsernameB, MsgB} end,
@@ -47,7 +47,7 @@ send_message(Username, RecPid, ServNode, Room, PythonPID) ->
                     python:stop(PythonPID),
                     ok;
                 Line == <<"--list">> ->
-                    AllSubs = gen_server:call({Room, ServNode}, {subscribers}),
+                    AllSubs = gen_server:call({global, Room}, {subscribers}),
                     io:format("Subscribers: ~p~n", [AllSubs]),
                     send_message(Username, RecPid, ServNode, Room, PythonPID);
                 true ->
@@ -55,7 +55,7 @@ send_message(Username, RecPid, ServNode, Room, PythonPID) ->
                     %% Time is in UTC
                     {{Year, Month, Day}, {Hour, Minute, Second}} = calendar:now_to_datetime(erlang:timestamp()),
                     Timestamp = lists:flatten(io_lib:format("~4..0w-~2..0w-~2..0w, ~2..0w:~2..0w:~2..0w",[Year,Month,Day,Hour,Minute,Second])),
-                    gen_server:cast({Room, ServNode}, {send, Username, Line, Timestamp}),
+                    gen_server:cast({global, Room}, {send, Username, Line, Timestamp}),
                     send_message(Username, RecPid, ServNode, Room, PythonPID)
             end
     end.
@@ -64,7 +64,7 @@ send_message(Username, RecPid, ServNode, Room, PythonPID) ->
 join_room(ServerNode, Room, Username) ->
     {ok, PythonPID} = python:start([{python, "python"}]),
     RecPid = spawn(chat_client, get_message, []),
-    Transcript = gen_server:call({Room, ServerNode}, {subscribe, Username, RecPid}),
+    Transcript = gen_server:call({global, Room}, {subscribe, Username, RecPid}),
     SortedTranscript = lists:map(
         fun({Name, Msg, Time}) ->
             list_to_binary(

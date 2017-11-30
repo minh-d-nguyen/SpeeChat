@@ -29,10 +29,10 @@
 %% @end
 %%--------------------------------------------------------------------
 start_link(Room) ->
-    gen_server:start_link({local, Room}, chat_server, [], []).
+    {ok, Pid} = gen_server:start_link({global, Room}, chat_server, [], []).
 
 stop(Room) ->
-    gen_server:stop(Room).
+    gen_server:stop({global, Room}).
 
 %%%===================================================================
 %%% gen_server callbacks

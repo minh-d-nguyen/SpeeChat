@@ -1,3 +1,4 @@
+import os
 import sys
 import zmq
 from erlport.erlang import cast, set_message_handler
@@ -12,6 +13,7 @@ from PyQt5.QtWidgets import (
     QInputDialog,
 )
 from PyQt5.QtCore import QThread, QObject, QTimer
+import speech_recognition as sr
 
 class Ui_SpeeChatGUI(object):
     def setupUi(self, SpeeChatGUI):
@@ -78,6 +80,7 @@ class ChatGUI(Ui_SpeeChatGUI, QMainWindow):
         self.pid = pid
         self.all_msgs = reversed(transcript)
         self.setup_components()
+        self.start_speech_to_text()
 
         # CODE COPIED FROM OTHER SOURCES
         # ZeroMQ hook up listener to Qt
@@ -138,7 +141,13 @@ class ChatGUI(Ui_SpeeChatGUI, QMainWindow):
             pass
 
     def start_speech_to_text(self):
-        # TODO: Start a new process that runs get_speech
+        audio_thread = AudioThread()
+        audio_thread.start()
+        audio_thread.finished.connect(self.callback)
+        return
+
+    def callback(self, line):
+        #TODO: fill in?
         return
 
 def create_gui(username, pid, transcript):
@@ -146,3 +155,25 @@ def create_gui(username, pid, transcript):
     GUI = ChatGUI(username, pid, transcript)
     GUI.show()
     sys.exit(app.exec_())
+
+class AudioThread(QThread):
+    def run(self):
+        try:
+            # Record Audio
+            r = sr.Recognizer()
+            with sr.Microphone() as source:
+                print("calibrating...")
+                r.adjust_for_ambient_noise(source)
+                print("Say something!")
+                audio = r.listen(source)
+            # for testing purposes, we're just using the default API key
+            # to use another API key, use `r.recognize_google(audio, key="GOOGLE_SPEECH_RECOGNITION_API_KEY")`
+            # instead of `r.recognize_google(audio)`
+            print("recognizing...")
+            command = r.recognize_google(audio)
+            return command
+        except sr.UnknownValueError:
+            print("Could not understand audio")
+        except sr.RequestError as e:
+            print("Could not request results from Google Speech Recognition service; {0}".format(e))
+

@@ -1,5 +1,4 @@
 import sys
-import get_speech
 import zmq
 from erlport.erlang import cast, set_message_handler
 from erlport.erlterms import Atom
@@ -16,7 +15,7 @@ from PyQt5.QtCore import QThread, QObject, QTimer
 
 class Ui_SpeeChatGUI(object):
     def setupUi(self, SpeeChatGUI):
-        SpeeChatGUI.setObjectName("SpeeChatGUI")
+        SpeeChatGUI.setObjectName("SpeeChat")
         SpeeChatGUI.resize(400, 355)
         self.centralWidget = QtWidgets.QWidget(SpeeChatGUI)
         self.centralWidget.setObjectName("centralWidget")

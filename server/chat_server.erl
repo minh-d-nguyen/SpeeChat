@@ -29,7 +29,7 @@
 %% @end
 %%--------------------------------------------------------------------
 start_link(Room) ->
-    {ok, Pid} = gen_server:start_link({global, Room}, chat_server, [], []).
+    gen_server:start_link({global, Room}, chat_server, [], []).
 
 stop(Room) ->
     gen_server:stop({global, Room}).

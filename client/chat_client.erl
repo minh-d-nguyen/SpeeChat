@@ -30,7 +30,7 @@ print_transcript([{Username, Msg, Time} | Rest]) ->
 %% send_message
 %% Take in the username, the PID of the message receiving process, the Server
 %% reference, handle input from users apprpriately.
-send_message(Username, RecPid, ServNode, Room, PythonPID) ->
+send_message(ServerNode, Username, RecPid, Room, PythonPID) ->
     receive
         {newmsg, Msg} ->
             Line = Msg,
@@ -49,14 +49,14 @@ send_message(Username, RecPid, ServNode, Room, PythonPID) ->
                 Line == <<"--list">> ->
                     AllSubs = gen_server:call({global, Room}, {subscribers}),
                     io:format("Subscribers: ~p~n", [AllSubs]),
-                    send_message(Username, RecPid, ServNode, Room, PythonPID);
+                    send_message(ServerNode, Username, RecPid, Room, PythonPID);
                 true ->
                     %% Calculate Timestamp in the format YYYY-MM-DD, HH:MM:SS
                     %% Time is in UTC
                     {{Year, Month, Day}, {Hour, Minute, Second}} = calendar:now_to_datetime(erlang:timestamp()),
                     Timestamp = lists:flatten(io_lib:format("~4..0w-~2..0w-~2..0w, ~2..0w:~2..0w:~2..0w",[Year,Month,Day,Hour,Minute,Second])),
                     gen_server:cast({global, Room}, {send, Username, Line, Timestamp}),
-                    send_message(Username, RecPid, ServNode, Room, PythonPID)
+                    send_message(ServerNode, Username, RecPid, Room, PythonPID)
             end
     end.
 
@@ -74,7 +74,7 @@ join_room(ServerNode, Room, Username) ->
                 )
             )
         end, Transcript),
-    SendPid = spawn(chat_client, send_message, [Username, RecPid, ServerNode, Room, PythonPID]),
+    SendPid = spawn(chat_client, send_message, [ServerNode, Username, RecPid, Room, PythonPID]),
     python:call(PythonPID, speechat_gui, create_gui, [Username, SendPid, SortedTranscript]).
 
 % Gen_server behavior

@@ -72,6 +72,11 @@ class ZeroMQ_Listener(QObject):
             string = self.socket.recv()
             self.message.emit(string)
 
+
+def callback(line):
+    print 'in callback'
+    return
+
 class ChatGUI(Ui_SpeeChatGUI, QMainWindow):
     def __init__(self, username, pid, transcript):
         super(ChatGUI, self).__init__()
@@ -80,7 +85,6 @@ class ChatGUI(Ui_SpeeChatGUI, QMainWindow):
         self.pid = pid
         self.all_msgs = reversed(transcript)
         self.setup_components()
-        self.start_speech_to_text()
 
         # CODE COPIED FROM OTHER SOURCES
         # ZeroMQ hook up listener to Qt
@@ -143,17 +147,14 @@ class ChatGUI(Ui_SpeeChatGUI, QMainWindow):
     def start_speech_to_text(self):
         audio_thread = AudioThread()
         audio_thread.start()
-        audio_thread.finished.connect(self.callback)
-        return
-
-    def callback(self, line):
-        #TODO: fill in?
-        return
+        audio_thread.finished.connect(callback)
+        audio_thread.wait()
 
 def create_gui(username, pid, transcript):
     app = QApplication(sys.argv)
     GUI = ChatGUI(username, pid, transcript)
     GUI.show()
+    # GUI.start_speech_to_text()
     sys.exit(app.exec_())
 
 class AudioThread(QThread):
@@ -174,6 +175,8 @@ class AudioThread(QThread):
             return command
         except sr.UnknownValueError:
             print("Could not understand audio")
+            return -1
         except sr.RequestError as e:
             print("Could not request results from Google Speech Recognition service; {0}".format(e))
+            return -1
 

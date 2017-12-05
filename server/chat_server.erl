@@ -29,10 +29,10 @@
 %% @end
 %%--------------------------------------------------------------------
 start_link(Room) ->
-    gen_server:start_link({local, Room}, chat_server, [], []).
+    gen_server:start_link({global, Room}, chat_server, [], []).
 
 stop(Room) ->
-    gen_server:stop(Room).
+    gen_server:stop({global, Room}).
 
 %%%===================================================================
 %%% gen_server callbacks
@@ -67,11 +67,11 @@ init([]) ->
 %%                                   {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
-handle_call({subscribe, Pid, Username}, _From, {CurrSubs, Pids, Transcript}) ->
-    {reply, Transcript, {[Username | CurrSubs], [Pid | Pids], Transcript}};
-
 handle_call({subscribers}, _From, {CurrSubs, Pids, Transcript}) ->
     {reply, CurrSubs, {CurrSubs, Pids, Transcript}};
+
+handle_call({subscribe, Username, Pid}, _From, {CurrSubs, Pids, Transcript}) ->
+    {reply, Transcript, {[Username | CurrSubs], [Pid | Pids], Transcript}};
 
 handle_call({unsubscribe, Username, Pid}, _From, {CurrentSubs, Pids, Transcript}) ->
     {RestUsers, RestPids} = unsubscribe(Username, Pid, CurrentSubs, Pids),
@@ -88,8 +88,7 @@ handle_call({unsubscribe, Username, Pid}, _From, {CurrentSubs, Pids, Transcript}
 %% @end
 %%--------------------------------------------------------------------
 handle_cast({send, Username, Msg, Time}, {CurrentSubs, Pids, Transcript}) ->
-    send_msg_to_all(Username, Msg, Pids),
-    io:format('~p~n', [Transcript]),
+    send_msg_to_all(Username, Msg, Time, Pids),
     {noreply, {CurrentSubs, Pids, [{Username, Msg, Time} | Transcript]}}.
 
 %%--------------------------------------------------------------------
@@ -125,8 +124,8 @@ unsubscribe(User, Pid, [FirstUser | RestUsers], [FirstPid | RestPids]) ->
 %% send_msg_to_all
 %% Given a message and its sender along with a list of chat room subscribers,
 %% send a line of the format "sender: message" to all subscribers
-send_msg_to_all(_Username, _Msg, []) ->
+send_msg_to_all(_Username, _Msg, _Time, []) ->
     ok;
-send_msg_to_all(Username, Msg, [Pid | Tail]) ->
-    Pid ! {message, Username, Msg},
-    send_msg_to_all(Username, Msg, Tail).
+send_msg_to_all(Username, Msg, Time, [Pid | Tail]) ->
+    Pid ! {message, Username, Msg, Time},
+    send_msg_to_all(Username, Msg, Time, Tail).

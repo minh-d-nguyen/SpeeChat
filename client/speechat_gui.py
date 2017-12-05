@@ -143,10 +143,7 @@ class ChatGUI(Ui_SpeeChatGUI, QMainWindow):
 
 
 def create_gui(username, pid, transcript):
-    try:
-        app = QApplication(sys.argv)
-        GUI = ChatGUI(username, pid, transcript)
-        GUI.show()
-        sys.exit(app.exec_())
-    except:
-        pass
+    app = QApplication(sys.argv)
+    GUI = ChatGUI(username, pid, transcript)
+    GUI.show()
+    sys.exit(app.exec_())

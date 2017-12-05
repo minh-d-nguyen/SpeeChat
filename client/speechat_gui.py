@@ -13,7 +13,6 @@ from PyQt5.QtWidgets import (
     QInputDialog,
 )
 from PyQt5.QtCore import QThread, QObject, QTimer
-import speech_recognition as sr
 
 class Ui_SpeeChatGUI(object):
     def setupUi(self, SpeeChatGUI):
@@ -64,7 +63,6 @@ class ZeroMQ_Listener(QObject):
         context = zmq.Context()
         self.socket = context.socket(zmq.PULL)
         self.socket.connect("tcp://127.0.0.1:5561")
-         
         self.running = True
      
     def loop(self):
@@ -72,10 +70,6 @@ class ZeroMQ_Listener(QObject):
             string = self.socket.recv()
             self.message.emit(string)
 
-
-def callback(line):
-    print 'in callback'
-    return
 
 class ChatGUI(Ui_SpeeChatGUI, QMainWindow):
     def __init__(self, username, pid, transcript):
@@ -93,7 +87,7 @@ class ChatGUI(Ui_SpeeChatGUI, QMainWindow):
         self.zeromq_listener.moveToThread(self.thread)
         self.thread.started.connect(self.zeromq_listener.loop)
         self.zeromq_listener.message.connect(self.signal_received)
-        QTimer.singleShot(0, self.thread.start)
+        self.thread.start()
      
     def signal_received(self, message):
         self.all_msgs.append(message)
@@ -110,9 +104,12 @@ class ChatGUI(Ui_SpeeChatGUI, QMainWindow):
         self.ChatDisplay.scrollToBottom()
  
     def closeEvent(self, event):
-        self.zeromq_listener.running = False
-        self.thread.quit()
-        cast(self.pid, (Atom("newmsg"), "--quit"))
+        try:
+            self.zeromq_listener.running = False
+            self.thread.terminate()
+            cast(self.pid, (Atom("newmsg"), "--quit"))
+        except:
+            pass
 
     def setup_components(self):
         self.CancelBtn.clicked.connect(self.exit_chat)
@@ -128,7 +125,7 @@ class ChatGUI(Ui_SpeeChatGUI, QMainWindow):
         self.close()
         try:
             self.zeromq_listener.running = False
-            self.thread.quit()
+            self.thread.terminate()
             cast(self.pid, (Atom("newmsg"), "--quit"))
         except:
             pass
@@ -144,39 +141,12 @@ class ChatGUI(Ui_SpeeChatGUI, QMainWindow):
         except:
             pass
 
-    def start_speech_to_text(self):
-        audio_thread = AudioThread()
-        audio_thread.start()
-        audio_thread.finished.connect(callback)
-        audio_thread.wait()
 
 def create_gui(username, pid, transcript):
-    app = QApplication(sys.argv)
-    GUI = ChatGUI(username, pid, transcript)
-    GUI.show()
-    # GUI.start_speech_to_text()
-    sys.exit(app.exec_())
-
-class AudioThread(QThread):
-    def run(self):
-        try:
-            # Record Audio
-            r = sr.Recognizer()
-            with sr.Microphone() as source:
-                print("calibrating...")
-                r.adjust_for_ambient_noise(source)
-                print("Say something!")
-                audio = r.listen(source)
-            # for testing purposes, we're just using the default API key
-            # to use another API key, use `r.recognize_google(audio, key="GOOGLE_SPEECH_RECOGNITION_API_KEY")`
-            # instead of `r.recognize_google(audio)`
-            print("recognizing...")
-            command = r.recognize_google(audio)
-            return command
-        except sr.UnknownValueError:
-            print("Could not understand audio")
-            return -1
-        except sr.RequestError as e:
-            print("Could not request results from Google Speech Recognition service; {0}".format(e))
-            return -1
-
+    try:
+        app = QApplication(sys.argv)
+        GUI = ChatGUI(username, pid, transcript)
+        GUI.show()
+        sys.exit(app.exec_())
+    except:
+        pass

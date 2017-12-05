@@ -10,7 +10,7 @@
 -behavior(gen_server).
 
 %% Client functions
--export([join_room/3, send_message/5, get_message/0, start_link/0, stop/0]).
+-export([join_room/2, send_message/4, get_message/0, start_link/0, stop/0]).
 -export([init/1, handle_call/3, handle_cast/2, terminate/2]).
 -define(SERVER, ?MODULE).
 
@@ -30,7 +30,7 @@ print_transcript([{Username, Msg, Time} | Rest]) ->
 %% send_message
 %% Take in the username, the PID of the message receiving process, the Server
 %% reference, handle input from users apprpriately.
-send_message(ServerNode, Username, RecPid, Room, PythonPID) ->
+send_message(Username, RecPid, Room, PythonPID) ->
     receive
         {newmsg, Msg} ->
             Line = Msg,
@@ -44,25 +44,27 @@ send_message(ServerNode, Username, RecPid, Room, PythonPID) ->
                     ),
                     io:format("Transcript:~n"),
                     print_transcript(Sorted),
+                    gen_server:stop(?SERVER),
                     python:stop(PythonPID),
                     ok;
                 Line == <<"--list">> ->
                     AllSubs = gen_server:call({global, Room}, {subscribers}),
                     io:format("Subscribers: ~p~n", [AllSubs]),
-                    send_message(ServerNode, Username, RecPid, Room, PythonPID);
+                    send_message(Username, RecPid, Room, PythonPID);
                 true ->
                     %% Calculate Timestamp in the format YYYY-MM-DD, HH:MM:SS
                     %% Time is in UTC
                     {{Year, Month, Day}, {Hour, Minute, Second}} = calendar:now_to_datetime(erlang:timestamp()),
                     Timestamp = lists:flatten(io_lib:format("~4..0w-~2..0w-~2..0w, ~2..0w:~2..0w:~2..0w",[Year,Month,Day,Hour,Minute,Second])),
                     gen_server:cast({global, Room}, {send, Username, Line, Timestamp}),
-                    send_message(ServerNode, Username, RecPid, Room, PythonPID)
+                    send_message(Username, RecPid, Room, PythonPID)
             end
     end.
 
 %% Exported Client Functions
-join_room(ServerNode, Room, Username) ->
+join_room(Room, Username) ->
     {ok, PythonPID} = python:start([{python, "python"}]),
+    gen_server:start_link({local, ?SERVER}, ?MODULE, [], []),
     RecPid = spawn(chat_client, get_message, []),
     Transcript = gen_server:call({global, Room}, {subscribe, Username, RecPid}),
     SortedTranscript = lists:map(
@@ -74,7 +76,7 @@ join_room(ServerNode, Room, Username) ->
                 )
             )
         end, Transcript),
-    SendPid = spawn(chat_client, send_message, [ServerNode, Username, RecPid, Room, PythonPID]),
+    SendPid = spawn(chat_client, send_message, [Username, RecPid, Room, PythonPID]),
     python:call(PythonPID, speechat_gui, create_gui, [Username, SendPid, SortedTranscript]).
 
 % Gen_server behavior
@@ -92,7 +94,8 @@ handle_call({msg, {Name, Msg, Time}}, _From, Socket) ->
 handle_cast(_A, _B) ->
     ok.
 
-terminate(_A, _B) ->
+terminate(_A, Socket) ->
+    erlzmq:close(Socket),
     ok.
 
 stop() ->

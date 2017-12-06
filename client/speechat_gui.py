@@ -90,6 +90,12 @@ class ChatGUI(Ui_SpeeChatGUI, QMainWindow):
         self.thread.start()
      
     def signal_received(self, message):
+        if message[0] == '*':
+            message = message[1:]
+            curr_msg = str(self.MsgEdit.text())
+            self.MsgEdit.setText(curr_msg + " " + message)
+            return
+
         self.all_msgs.append(message)
         currentCount = len(self.all_msgs)
         while (

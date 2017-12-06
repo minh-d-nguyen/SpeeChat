@@ -45,7 +45,7 @@ Please refer to: https://github.com/zeromq/erlzmq2
 PyQt5:<br>
 For Mac OS:<br>
 Assuming you have the latest version of Homebrew installed, run the following commands from the terminal:<br>
-`$ brew install pyqt5<br>`
+`$ brew install pyqt5`<br>
 For Ubuntu:<br>
 Run the following commands from the terminal:<br>
 `$ sudo apt-get install python-pyqt5`

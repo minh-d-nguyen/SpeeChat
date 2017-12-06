@@ -54,7 +54,7 @@ Google's Speech Recognition Package:<br>
 Assuming you have pip or pip3 installed, run the following commands from the terminal:<br>
 `$ sudo pip install SpeechRecognition`
 <br><br>
-IMPORTANT: In order to run SpeeChat in the client side, the paths to erlport and erlzmq have to be in the environment variable ERL_LIBS, and the path to zmq, speech_recognition, and PyQt5 have to be in the environment variable PATH or PYTHONPATH. See how to check and set environment variables here:<br>
+IMPORTANT: In order to run SpeeChat in the client side, the paths to erlport and erlzmq have to be in the environment variable ERL_LIBS, and the paths to zmq, speech_recognition, and PyQt5 have to be in the environment variable PATH or PYTHONPATH. See how to check and set environment variables here:<br>
 https://en.wikipedia.org/wiki/Environment_variable
 <br><br>
 Note that in the process of installing the above packages, depending on the computer, extra packages might also have to be installed.

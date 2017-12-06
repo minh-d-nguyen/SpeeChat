@@ -72,7 +72,6 @@ send_message(Username, RecPid, SpeechPid, Room, PythonPID) ->
 get_speech() ->
     {ok, P} = python:start([{python, "python"}]),
     Line = python:call(P, get_speech, get_speech, []),
-    io:format("Got: ~p~n", [Line]),
     python:stop(P),
     if
         Line == <<>> ->
@@ -82,7 +81,6 @@ get_speech() ->
                 get_speech()
             end;
         true ->
-            io:format("Sending: ~p~n", [Line]),
             NewLine = string:concat("*", Line),
             gen_server:call(?SERVER, {speech, {NewLine}}),
             receive

@@ -17,7 +17,6 @@ def get_speech():
         # to use another API key, use `r.recognize_google(audio, key="GOOGLE_SPEECH_RECOGNITION_API_KEY")`
         # instead of `r.recognize_google(audio)`
         line = r.recognize_google(audio)
-        print line
         return line
     except sr.UnknownValueError:
         return ""

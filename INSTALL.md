@@ -15,7 +15,7 @@ Google's Speech Recognition Package
 <br><br>
 Homebrew (for Mac OS):<br>
 Run:<br>
-$ /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"<br>
+`$ /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`<br>
 from the terminal.
 <br><br>
 Python 2.7:<br>
@@ -26,8 +26,8 @@ PortAudio v19:<br>
 Ubuntu: Please refer to http://www.portaudio.com/download.html<br>
 Mac OS:<br>
 Assuming you have the latest version of Homebrew installed, run the following commands from the terminal:<br>
-$ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" < /dev/null 2> /dev/null<br>
-$ brew install portaudio
+`$ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" < /dev/null 2> /dev/null`<br>
+`$ brew install portaudio`
 <br><br>
 PyAudio (PortAudio v19 Python binding):<br>
 Please refer to instructions at:<br>
@@ -45,14 +45,14 @@ Please refer to: https://github.com/zeromq/erlzmq2
 PyQt5:<br>
 For Mac OS:<br>
 Assuming you have the latest version of Homebrew installed, run the following commands from the terminal:<br>
-$ brew install pyqt5<br>
+`$ brew install pyqt5<br>`
 For Ubuntu:<br>
 Run the following commands from the terminal:<br>
-$ apt-get install python-pyqt5
+`$ sudo apt-get install python-pyqt5`
 <br><br>
 Google's Speech Recognition Package:<br>
 Assuming you have pip or pip3 installed, run the following commands from the terminal:<br>
-$ sudo pip install SpeechRecognition
+`$ sudo pip install SpeechRecognition`
 <br><br>
 IMPORTANT: In order to run SpeeChat in the client side, the paths to erlport and erlzmq have to be in the environment variable ERL_LIBS, and the path to zmq, speech_recognition, and PyQt5 have to be in the environment variable PATH or PYTHONPATH. See how to check and set environment variables here:<br>
 https://en.wikipedia.org/wiki/Environment_variable

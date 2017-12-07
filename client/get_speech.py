@@ -14,10 +14,13 @@ def get_speech():
             r.adjust_for_ambient_noise(source)
             audio = r.listen(source)
         # for testing purposes, we're just using the default API key
-        # to use another API key, use `r.recognize_google(audio, key="GOOGLE_SPEECH_RECOGNITION_API_KEY")`
-        # instead of `r.recognize_google(audio)`
+        # to use another API key, use `r.recognize_google(audio, 
+        # key="GOOGLE_SPEECH_RECOGNITION_API_KEY")` instead of 
+        # `r.recognize_google(audio)`
         line = r.recognize_google(audio)
         return line
+    # exceptions do nothing; erlang process running get_speech should do 
+    # nothing if get_speech fails
     except sr.UnknownValueError:
         return ""
     except sr.RequestError:

@@ -38,7 +38,7 @@ send_message(Username, RecPid, SpeechPid, Room, PythonPID) ->
             if
                 Line == <<"--quit">> ->
                     %% unsubscribe from the room, print the conversation 
-                    %% transcript, and send a stop signal to processes for speech
+                    %% transcript, and send stop signal to processes for speech
                     %% and text input
                     Transcript = gen_server:call(
                         {global, Room}, {unsubscribe, Username, RecPid}

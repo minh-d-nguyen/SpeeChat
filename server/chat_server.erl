@@ -72,7 +72,8 @@ handle_call({subscribers}, _From, {CurrSubs, Pids, Transcript}) ->
 handle_call({subscribe, Username, Pid}, _From, {CurrSubs, Pids, Transcript}) ->
     {reply, Transcript, {[Username | CurrSubs], [Pid | Pids], Transcript}};
 
-handle_call({unsubscribe, Username, Pid}, _From, {CurrentSubs, Pids, Transcript}) ->
+handle_call({unsubscribe, Username, Pid}, _From, 
+            {CurrentSubs, Pids, Transcript}) ->
     {RestUsers, RestPids} = unsubscribe(Username, Pid, CurrentSubs, Pids),
     {reply, Transcript, {RestUsers, RestPids, Transcript}}.
 

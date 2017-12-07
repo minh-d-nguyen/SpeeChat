@@ -1,11 +1,24 @@
 #!/usr/bin/env python3
+"""
+get_speech.py
+adapted from:
+https://pythonspot.com/en/speech-recognition-using-google-speech-api/
+
+This module includes the code for the speech-to-text translation function
+using Google Speech-to-text API.
+
+"""
+
 # Requires PyAudio and PySpeech.
 import os
 import sys
 import speech_recognition as sr
 
 def get_speech():
-    """Speech recognition using Google Speech Recognition"""
+    """
+    Speech recognition using Google Speech Recognition
+
+    """
     try:
         line = ""
         # Record Audio

@@ -1,6 +1,7 @@
 %%%-------------------------------------------------------------------
+%%% @chat_client.erl
 %%% @author Minh D. Nguyen, Quinn Collins, and Arpan Gurung
-%%% @doc Erlang module for client side chat application
+%%% @doc Erlang module for client side of chat application SpeeChat
 %%%-------------------------------------------------------------------
 -module(chat_client).
 -behavior(gen_server).
@@ -36,9 +37,9 @@ send_message(Username, RecPid, SpeechPid, Room, PythonPID) ->
             Line = Msg,
             if
                 Line == <<"--quit">> ->
-                %% unsubscribe from the room, print the conversation 
-                %% transcript, and send a stop signal to processes for speech
-                %% and text input
+                    %% unsubscribe from the room, print the conversation 
+                    %% transcript, and send a stop signal to processes for speech
+                    %% and text input
                     Transcript = gen_server:call(
                         {global, Room}, {unsubscribe, Username, RecPid}
                     ),
@@ -57,7 +58,7 @@ send_message(Username, RecPid, SpeechPid, Room, PythonPID) ->
                     SpeechPid ! {stop},
                     ok;
                 Line == <<"--list">> ->
-                %% List subscribers of the room
+                    %% List subscribers of the room
                     AllSubs = gen_server:call({global, Room}, {subscribers}),
                     io:format("Subscribers: ~p~n", [AllSubs]),
                     send_message(Username, RecPid, SpeechPid, Room, PythonPID);

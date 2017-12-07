@@ -1,3 +1,14 @@
+"""
+speechat_gui.py
+by the SpeeChat team (Minh D. Nguyen, Quinn Collins, and Arpan Gurung)
+
+This module includes the code for the GUI for the SpeeChat application,
+including methods to communicate with the Erlang process through zmq.
+The zmq communication code is adapted from the example at the website:
+http://www.23min.com/2013/03/erlang-to-pyqt-via-0mq/
+
+"""
+
 import os
 import sys
 import zmq
@@ -17,7 +28,8 @@ from PyQt5.QtCore import QThread, QObject, QTimer
 class Ui_SpeeChatGUI(object):
     def setupUi(self, SpeeChatGUI):
     """
-    instantiate GUI chat window, buttons, and text input field
+    Instantiate GUI chat window, buttons, and text input field using PyQt5
+
     """
         SpeeChatGUI.setObjectName("SpeeChat")
         SpeeChatGUI.resize(400, 355)
@@ -54,7 +66,7 @@ class Ui_SpeeChatGUI(object):
     set text in GUI
     """
         _translate = QtCore.QCoreApplication.translate
-        SpeeChatGUI.setWindowTitle(_translate("SpeeChatGUI", "SpeeChatGUI"))
+        SpeeChatGUI.setWindowTitle(_translate("SpeeChatGUI", "SpeeChat"))
         self.MsgLabel.setText(_translate("SpeeChatGUI", "Your message:"))
         self.SendBtn.setText(_translate("SpeeChatGUI", "Send"))
         self.CancelBtn.setText(_translate("SpeeChatGUI", "Quit"))
@@ -62,9 +74,12 @@ class Ui_SpeeChatGUI(object):
 class ZeroMQ_Listener(QObject):
     message = QtCore.pyqtSignal(str)
     def __init__(self):
-    """
-    instantiate socket to send messages to erlang client
-    """
+        """
+        Instantiate socket to send messages to erlang client.
+        This class is copied from:
+        http://www.23min.com/2013/03/erlang-to-pyqt-via-0mq/
+
+        """
         QObject.__init__(self)
          
         # ZeroMQ endpoint
@@ -79,9 +94,10 @@ class ZeroMQ_Listener(QObject):
             self.message.emit(string)
 
 class ChatGUI(Ui_SpeeChatGUI, QMainWindow):
-"""
-set up and handle events in GUI
-"""
+    """
+    Set up and handle events in GUI.
+
+    """
     def __init__(self, username, pid, transcript):
         super(ChatGUI, self).__init__()
         self.setupUi(self)
@@ -90,8 +106,9 @@ set up and handle events in GUI
         self.all_msgs = reversed(transcript)
         self.setup_components()
 
-        # CODE COPIED FROM OTHER SOURCES
         # ZeroMQ hook up listener to Qt
+        # This part is copied from:
+        # http://www.23min.com/2013/03/erlang-to-pyqt-via-0mq/
         self.thread = QThread()
         self.zeromq_listener = ZeroMQ_Listener()
         self.zeromq_listener.moveToThread(self.thread)
@@ -101,7 +118,8 @@ set up and handle events in GUI
      
     def signal_received(self, message):
     """
-    handle receiving messages to be written in GUI
+    Handle receiving messages to be displayed in GUI.
+
     """
         # handle speech-to-text messages
         if message[0] == '*':
@@ -110,7 +128,7 @@ set up and handle events in GUI
             self.MsgEdit.setText(curr_msg + " " + message)
             return
 
-        # handle text messages
+        # handle text messages sent from the server
         self.all_msgs.append(message)
         currentCount = len(self.all_msgs)
         while (
@@ -126,7 +144,8 @@ set up and handle events in GUI
  
     def closeEvent(self, event):
     """
-    handle closing window
+    Handle closing window when the close signal is received.
+
     """
         try:
             self.zeromq_listener.running = False
@@ -137,7 +156,8 @@ set up and handle events in GUI
 
     def setup_components(self):
     """
-    connect button functionality to associated functions; display messages
+    Connect button functionality to associated functions; display messages.
+
     """
         self.CancelBtn.clicked.connect(self.exit_chat)
         self.SendBtn.clicked.connect(self.send_msg)
@@ -150,7 +170,8 @@ set up and handle events in GUI
     
     def exit_chat(self):
     """
-    close chat window and associated socket and thread
+    Close chat window and associated socket and thread.
+
     """
         self.close()
         try:
@@ -162,7 +183,8 @@ set up and handle events in GUI
 
     def send_msg(self):
     """
-    send message to erlang client
+    Send message to erlang client to be sent to the server.
+
     """
         msg = str(self.MsgEdit.text())
         try:
@@ -174,9 +196,10 @@ set up and handle events in GUI
             pass
 
 def create_gui(username, pid, transcript):
-"""
-instantiate GUI
-"""
+    """
+    Instantiate the GUI to run SpeeChat.
+
+    """
     app = QApplication(sys.argv)
     GUI = ChatGUI(username, pid, transcript)
     GUI.show()

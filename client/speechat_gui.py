@@ -15,8 +15,10 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import QThread, QObject, QTimer
 
 class Ui_SpeeChatGUI(object):
-    # instantiate GUI chat window, buttons, and text input field
     def setupUi(self, SpeeChatGUI):
+    """
+    instantiate GUI chat window, buttons, and text input field
+    """
         SpeeChatGUI.setObjectName("SpeeChat")
         SpeeChatGUI.resize(400, 355)
         self.centralWidget = QtWidgets.QWidget(SpeeChatGUI)
@@ -47,18 +49,22 @@ class Ui_SpeeChatGUI(object):
         self.retranslateUi(SpeeChatGUI)
         QtCore.QMetaObject.connectSlotsByName(SpeeChatGUI)
 
-    # set text in GUI
     def retranslateUi(self, SpeeChatGUI):
+    """
+    set text in GUI
+    """
         _translate = QtCore.QCoreApplication.translate
         SpeeChatGUI.setWindowTitle(_translate("SpeeChatGUI", "SpeeChatGUI"))
         self.MsgLabel.setText(_translate("SpeeChatGUI", "Your message:"))
         self.SendBtn.setText(_translate("SpeeChatGUI", "Send"))
         self.CancelBtn.setText(_translate("SpeeChatGUI", "Quit"))
 
-# instantiate socket to send messages to erlang client
 class ZeroMQ_Listener(QObject):
     message = QtCore.pyqtSignal(str)
     def __init__(self):
+    """
+    instantiate socket to send messages to erlang client
+    """
         QObject.__init__(self)
          
         # ZeroMQ endpoint
@@ -72,8 +78,10 @@ class ZeroMQ_Listener(QObject):
             string = self.socket.recv()
             self.message.emit(string)
 
-# set up and handle events in GUI
 class ChatGUI(Ui_SpeeChatGUI, QMainWindow):
+"""
+set up and handle events in GUI
+"""
     def __init__(self, username, pid, transcript):
         super(ChatGUI, self).__init__()
         self.setupUi(self)
@@ -91,8 +99,10 @@ class ChatGUI(Ui_SpeeChatGUI, QMainWindow):
         self.zeromq_listener.message.connect(self.signal_received)
         self.thread.start()
      
-    # handle receiving messages to be written in GUI
     def signal_received(self, message):
+    """
+    handle receiving messages to be written in GUI
+    """
         # handle speech-to-text messages
         if message[0] == '*':
             message = message[1:]
@@ -114,8 +124,10 @@ class ChatGUI(Ui_SpeeChatGUI, QMainWindow):
         self.ChatDisplay.insertItem(currentCount, message)
         self.ChatDisplay.scrollToBottom()
  
-    # handle closing of window
     def closeEvent(self, event):
+    """
+    handle closing window
+    """
         try:
             self.zeromq_listener.running = False
             self.thread.terminate()
@@ -123,8 +135,10 @@ class ChatGUI(Ui_SpeeChatGUI, QMainWindow):
         except:
             pass
 
-    # connect button functionality to associated functions; display messages
     def setup_components(self):
+    """
+    connect button functionality to associated functions; display messages
+    """
         self.CancelBtn.clicked.connect(self.exit_chat)
         self.SendBtn.clicked.connect(self.send_msg)
         self.all_msgs = sorted(self.all_msgs, key=lambda x: x[2])
@@ -134,8 +148,10 @@ class ChatGUI(Ui_SpeeChatGUI, QMainWindow):
             self.ChatDisplay.insertItem(currentRow, msg)
         self.ChatDisplay.scrollToBottom()
     
-    # close chat window and associated socket and thread
     def exit_chat(self):
+    """
+    close chat window and associated socket and thread
+    """
         self.close()
         try:
             self.zeromq_listener.running = False
@@ -144,8 +160,10 @@ class ChatGUI(Ui_SpeeChatGUI, QMainWindow):
         except:
             pass
 
-    # send message to erlang client
     def send_msg(self):
+    """
+    send message to erlang client
+    """
         msg = str(self.MsgEdit.text())
         try:
             cast(self.pid, (Atom("newmsg"), msg))
@@ -155,8 +173,10 @@ class ChatGUI(Ui_SpeeChatGUI, QMainWindow):
         except:
             pass
 
-# instantiate GUI
 def create_gui(username, pid, transcript):
+"""
+instantiate GUI
+"""
     app = QApplication(sys.argv)
     GUI = ChatGUI(username, pid, transcript)
     GUI.show()

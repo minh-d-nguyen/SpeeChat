@@ -5,7 +5,7 @@ import sys
 import speech_recognition as sr
 
 def get_speech():
-    # Speech recognition using Google Speech Recognition
+    """Speech recognition using Google Speech Recognition"""
     try:
         line = ""
         # Record Audio

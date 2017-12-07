@@ -4,7 +4,7 @@ by the SpeeChat team (Minh D. Nguyen, Quinn Collins, and Arpan Gurung)
 
 This module includes the code for the GUI for the SpeeChat application,
 including methods to communicate with the Erlang process through zmq.
-The zmq communication code is adapted from the example at the website:
+NOTE: The zmq communication code is adapted from the example at the website:
 http://www.23min.com/2013/03/erlang-to-pyqt-via-0mq/
 
 """

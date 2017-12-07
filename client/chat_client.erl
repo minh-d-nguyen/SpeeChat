@@ -2,6 +2,9 @@
 %%% @chat_client.erl
 %%% @author Minh D. Nguyen, Quinn Collins, and Arpan Gurung
 %%% @doc Erlang module for client side of chat application SpeeChat
+%%% NOTE: The erlzmq communication code is adapted from the example
+%%% at the website:
+%%% http://www.23min.com/2013/03/erlang-to-pyqt-via-0mq/
 %%%-------------------------------------------------------------------
 -module(chat_client).
 -behavior(gen_server).
@@ -89,6 +92,7 @@ get_speech() ->
     python:stop(P),
     if
         Line == <<>> ->
+            % check if stop signal is received
             receive
                 {stop} -> ok
             after 10 ->
@@ -98,6 +102,7 @@ get_speech() ->
             %% add * to indicate text is from speech
             NewLine = string:concat("*", Line),
             gen_server:call(?SERVER, {speech, {NewLine}}),
+            % check if stop signal is received
             receive
                 {stop} -> ok
             after 10 ->
@@ -136,7 +141,10 @@ join_room(Room, Username) ->
                 [Username, SendPid, SortedTranscript]).
 
 %% ============================================================================
-%% gen_server behavior functions
+%% gen_server behavior functions for erlzmq communication
+%% NOTE: The erlzmq communication code is adapted from the example
+%% at the website:
+%% http://www.23min.com/2013/03/erlang-to-pyqt-via-0mq/
 %% ============================================================================
 
 %% initialize and open port for erlzmq for communication between GUI and client
@@ -154,8 +162,13 @@ handle_call({speech, {Line}}, _From, Socket) ->
 %% handle complete messages (username, message, timestamp) sent to the socket
 %% from the GUI
 handle_call({msg, {Name, Msg, Time}}, _From, Socket) ->
-    StrMsg = string:join([string:join([Time, atom_to_list(Name)], " "), 
-                                                                Msg], ": "),
+    StrMsg = string:join(
+        [
+            string:join([Time, atom_to_list(Name)], " "),
+            Msg
+        ],
+        ": "
+    ),
     erlzmq:send(Socket, list_to_binary(StrMsg)),
     {reply, ok, Socket}.
 

@@ -1,10 +1,7 @@
 %%%-------------------------------------------------------------------
-%%% @author Minh D. Nguyen <mnguye17@vm-hw00.eecs.tufts.edu>
-%%% @copyright (C) 2017, Minh D. Nguyen
-%%% @doc
-%%%
-%%% @end
-%%% Created : 27 Sep 2017 by Minh D. Nguyen <mnguye17@vm-hw00.eecs.tufts.edu>
+%%% @chat_server.erl
+%%% @author Minh D. Nguyen, Quinn Collins, and Arpan Gurung
+%%% @doc Erlang module for server side of chat application SpeeChat
 %%%-------------------------------------------------------------------
 -module(chat_server).
 

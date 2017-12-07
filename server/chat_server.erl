@@ -21,16 +21,11 @@
 %%% API
 %%%===================================================================
 
-%%--------------------------------------------------------------------
-%% @doc
-%% Starts/stops the server
-%%
-%% @spec start_link() -> {ok, Pid} | ignore | {error, Error}
-%% @end
-%%--------------------------------------------------------------------
+%% Starts the server
 start_link(Room) ->
     gen_server:start_link({global, Room}, chat_server, [], []).
 
+%% Stop the server
 stop(Room) ->
     gen_server:stop({global, Room}).
 
@@ -38,34 +33,11 @@ stop(Room) ->
 %%% gen_server callbacks
 %%%===================================================================
 
-%%--------------------------------------------------------------------
-%% @private
-%% @doc
-%% Initializes the server
-%%
-%% @spec init(Args) -> {ok, State} |
-%%                     {ok, State, Timeout} |
-%%                     ignore |
-%%                     {stop, Reason}
-%% @end
-%%--------------------------------------------------------------------
+%% Initialize the server. State is {[usernames], [PIDs], [Transcript]}
 init([]) ->
     {ok, {[], [], []}}.
 
-%%--------------------------------------------------------------------
-%% @private
-%% @doc
-%% Handling call messages
-%%
-%% @spec handle_call(Request, From, State) ->
-%%                                   {reply, Reply, State} |
-%%                                   {reply, Reply, State, Timeout} |
-%%                                   {noreply, State} |
-%%                                   {noreply, State, Timeout} |
-%%                                   {stop, Reason, Reply, State} |
-%%                                   {stop, Reason, State}
-%% @end
-%%--------------------------------------------------------------------
+%% Handle calls to add and remove subscribers, return list of subscribers
 handle_call({subscribers}, _From, {CurrSubs, Pids, Transcript}) ->
     {reply, CurrSubs, {CurrSubs, Pids, Transcript}};
 
@@ -77,31 +49,15 @@ handle_call({unsubscribe, Username, Pid}, _From,
     {RestUsers, RestPids} = unsubscribe(Username, Pid, CurrentSubs, Pids),
     {reply, Transcript, {RestUsers, RestPids, Transcript}}.
 
-%%--------------------------------------------------------------------
-%% @private
-%% @doc
-%% Handling cast messages
-%%
-%% @spec handle_cast(Msg, State) -> {noreply, State} |
-%%                                  {noreply, State, Timeout} |
-%%                                  {stop, Reason, State}
-%% @end
-%%--------------------------------------------------------------------
+%% Handling cast to send a new message to all subscribers
 handle_cast({send, Username, Msg, Time}, {CurrentSubs, Pids, Transcript}) ->
     send_msg_to_all(Username, Msg, Time, Pids),
     {noreply, {CurrentSubs, Pids, [{Username, Msg, Time} | Transcript]}}.
 
-%%--------------------------------------------------------------------
-%% @private
-%% @doc
 %% This function is called by a gen_server when it is about to
 %% terminate. It should be the opposite of Module:init/1 and do any
 %% necessary cleaning up. When it returns, the gen_server terminates
 %% with Reason. The return value is ignored.
-%%
-%% @spec terminate(Reason, State) -> void()
-%% @end
-%%--------------------------------------------------------------------
 terminate(_Reason, _CurrState) ->
     ok.
 
@@ -109,7 +65,6 @@ terminate(_Reason, _CurrState) ->
 %%% Internal functions
 %%%===================================================================
 
-%% unsubscribe
 %% Given the username and the pid, remove the matching username and pid
 %% from the lists
 unsubscribe(_User, _Pid, [], []) ->
@@ -121,7 +76,6 @@ unsubscribe(User, Pid, [FirstUser | RestUsers], [FirstPid | RestPids]) ->
     {Users, Pids} = unsubscribe(User, Pid, RestUsers, RestPids),
     {[FirstUser | Users], [FirstPid | Pids]}.
 
-%% send_msg_to_all
 %% Given a message and its sender along with a list of chat room subscribers,
 %% send a line of the format "sender: message" to all subscribers
 send_msg_to_all(_Username, _Msg, _Time, []) ->

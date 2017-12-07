@@ -27,10 +27,10 @@ from PyQt5.QtCore import QThread, QObject, QTimer
 
 class Ui_SpeeChatGUI(object):
     def setupUi(self, SpeeChatGUI):
-    """
-    Instantiate GUI chat window, buttons, and text input field using PyQt5
+        """
+        Instantiate GUI chat window, buttons, and text input field using PyQt5
 
-    """
+        """
         SpeeChatGUI.setObjectName("SpeeChat")
         SpeeChatGUI.resize(400, 355)
         self.centralWidget = QtWidgets.QWidget(SpeeChatGUI)
@@ -62,9 +62,10 @@ class Ui_SpeeChatGUI(object):
         QtCore.QMetaObject.connectSlotsByName(SpeeChatGUI)
 
     def retranslateUi(self, SpeeChatGUI):
-    """
-    set text in GUI
-    """
+        """
+        set text in GUI
+        
+        """
         _translate = QtCore.QCoreApplication.translate
         SpeeChatGUI.setWindowTitle(_translate("SpeeChatGUI", "SpeeChat"))
         self.MsgLabel.setText(_translate("SpeeChatGUI", "Your message:"))
@@ -94,11 +95,11 @@ class ZeroMQ_Listener(QObject):
             self.message.emit(string)
 
 class ChatGUI(Ui_SpeeChatGUI, QMainWindow):
-    """
-    Set up and handle events in GUI.
-
-    """
     def __init__(self, username, pid, transcript):
+        """
+        Set up and handle events in GUI.
+        
+        """
         super(ChatGUI, self).__init__()
         self.setupUi(self)
         self.username = username
@@ -117,10 +118,10 @@ class ChatGUI(Ui_SpeeChatGUI, QMainWindow):
         self.thread.start()
      
     def signal_received(self, message):
-    """
-    Handle receiving messages to be displayed in GUI.
-
-    """
+        """
+        Handle receiving messages to be displayed in GUI.
+        
+        """
         # handle speech-to-text messages
         if message[0] == '*':
             message = message[1:]
@@ -143,10 +144,10 @@ class ChatGUI(Ui_SpeeChatGUI, QMainWindow):
         self.ChatDisplay.scrollToBottom()
  
     def closeEvent(self, event):
-    """
-    Handle closing window when the close signal is received.
+        """
+        Handle closing window when the close signal is received.
 
-    """
+        """
         try:
             self.zeromq_listener.running = False
             self.thread.terminate()
@@ -155,10 +156,10 @@ class ChatGUI(Ui_SpeeChatGUI, QMainWindow):
             pass
 
     def setup_components(self):
-    """
-    Connect button functionality to associated functions; display messages.
-
-    """
+        """
+        Connect button functionality to associated functions; display messages.
+        
+        """
         self.CancelBtn.clicked.connect(self.exit_chat)
         self.SendBtn.clicked.connect(self.send_msg)
         self.all_msgs = sorted(self.all_msgs, key=lambda x: x[2])
@@ -169,10 +170,10 @@ class ChatGUI(Ui_SpeeChatGUI, QMainWindow):
         self.ChatDisplay.scrollToBottom()
     
     def exit_chat(self):
-    """
-    Close chat window and associated socket and thread.
-
-    """
+        """
+        Close chat window and associated socket and thread.
+        
+        """
         self.close()
         try:
             self.zeromq_listener.running = False
@@ -182,10 +183,10 @@ class ChatGUI(Ui_SpeeChatGUI, QMainWindow):
             pass
 
     def send_msg(self):
-    """
-    Send message to erlang client to be sent to the server.
-
-    """
+        """
+        Send message to erlang client to be sent to the server.
+        
+        """
         msg = str(self.MsgEdit.text())
         try:
             cast(self.pid, (Atom("newmsg"), msg))

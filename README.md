@@ -37,16 +37,16 @@ IV. RUN INSTRUCTIONS:
 - Start the client<br>
     e.g.    `chat_client:join_room(“room”, user_1).`
 <br><br>
-- You’re all set to go! A chat GUI window should open. You can either type messages or speak, and your speech will be added as text in the typing box. Sometimes it takes a while to process speech, so don’t expect an immediate response.
-<br><br><br>
+- You’re all set to go! A chat GUI window should open. You can either type messages or speak, and your speech will be added as text in the typing box. Sometimes it takes a while to process speech, so don’t expect an immediate response.<br>
+<br><br>
 V. IMPLEMENTATION TECHNOLOGY AND PACKAGES
 <br><br>
-Server and Client: Erlang<br>
-Speech-To-Text: Google Speech-to-Text via Python<br>
-Connecting Python speech-to-text and PyQt GUI to Erlang client: Erlport<br>
-GUI: PyQt5<br>
-Communication (message passing) between Erlang client and PyQt GUI: ZeroMQ and Erlzmq
-<br><br><br>
+- Server and Client: Erlang<br>
+- Speech-To-Text: Google Speech-to-Text via Python<br>
+- Connecting Python speech-to-text and PyQt GUI to Erlang client: Erlport<br>
+- GUI: PyQt5<br>
+- Communication (message passing) between Erlang client and PyQt GUI: ZeroMQ and Erlzmq<br>
+<br><br>
 VI. CODE OVERVIEW
 <br><br>
 Client Code:<br>

@@ -35,8 +35,7 @@ IV. RUN INSTRUCTIONS:
 - Ping the server, wait for “pong” response. If you get “pang”, something is misconfigured, or your wifi/internet might be configured to block direct communication between users<br>
     e.g.    `net_adm:ping(‘server@test’).`<br>
 - Start the client<br>
-    e.g.    `chat_client:join_room(“room”, user_1).`
-<br>
+    e.g.    `chat_client:join_room(“room”, user_1).`<br>
 - You’re all set to go! A chat GUI window should open. You can either type messages or speak, and your speech will be added as text in the typing box. Sometimes it takes a while to process speech, so don’t expect an immediate response.
 <br><br><br>
 V. IMPLEMENTATION TECHNOLOGY AND PACKAGES

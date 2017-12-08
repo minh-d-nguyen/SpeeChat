@@ -55,8 +55,8 @@ This file contains the erlang client side chat code. The server code for this cl
 2. get_speech.py:<br>
 This file contains the get_speech python function that uses Google’s Speech Recognition to get speech input from the user which is then converted to text. It is called from the chat client in chat_client.erl.<br>
 3. speechat_gui.py:<br>
-This file contains the python GUI code written using PyQt, a python wrapper for writing graphical user interfaces. Furthermore, it uses erlzmq and erlport to communicate with the chat client code in chat_client.erl.<br>
-<br>
+This file contains the python GUI code written using PyQt, a python wrapper for writing graphical user interfaces. Furthermore, it uses erlzmq and erlport to communicate with the chat client code in chat_client.erl.
+<br><br>
 Server Code:<br>
 1. chat_server.erl:<br>
 This file contains the Speechat erlang server code for a chat room. It utilizes gen_server behaviour to not only keep connected process IDs, the chat room transcript, and subscribed usernames as the server state, but also to handle calls to subscribe and unsubscribe, and a cast to send messages to connected clients. The corresponding client code is contained in chat_client.erl.<br>

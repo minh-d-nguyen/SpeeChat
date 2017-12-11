@@ -117,7 +117,6 @@ get_speech() ->
 join_room(Room, Username) ->
     %% start python process for GUI
     {ok, PythonPID} = python:start([{python, "python"}]),
-    gen_server:start_link({local, ?SERVER}, ?MODULE, [], []),
     %% start erlang process to receive messages
     RecPid = spawn(chat_client, get_message, []),
     %% get transcript of previous messages and display them in order
@@ -137,9 +136,23 @@ join_room(Room, Username) ->
     %% spawn erlang process to send messages to the server
     SendPid = spawn(chat_client, send_message, 
                     [Username, RecPid, SpeechPid, Room, PythonPID]),
-    %% create GUI in python process
-    python:call(PythonPID, speechat_gui, create_gui, 
-                [Username, SendPid, SortedTranscript]).
+    try
+        % start gen_server to send messages to GUI
+        gen_server:start_link({local, ?SERVER}, ?MODULE, [], []),
+        %% create GUI in python process
+        python:call(PythonPID, speechat_gui, create_gui, 
+                    [Username, SendPid, SortedTranscript])
+    catch
+        %% Catch the exception erlport throws when we end SpeeChat
+        error:stopped -> ok;
+        %% For all other errors, stop everything
+        _:_ ->
+            gen_server:stop(?SERVER),
+            python:stop(PythonPID),
+            RecPid ! {stop},
+            SpeechPid ! {stop},
+            {"Cannot open SpeeChat, please retry!"}
+    end.
 
 %% ============================================================================
 %% gen_server behavior functions for erlzmq communication

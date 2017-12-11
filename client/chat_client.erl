@@ -112,7 +112,8 @@ get_speech() ->
 
 %% join chat room with specified username. User must have previously called
 %% net_adm:ping/1 on the node they want to connect to, and received the
-%% response "pong". 
+%% response "pong".
+%% Room must match the name of a running room, and username must be a string.
 join_room(Room, Username) ->
     %% start python process for GUI
     {ok, PythonPID} = python:start([{python, "python"}]),
@@ -126,7 +127,7 @@ join_room(Room, Username) ->
         fun({Name, Msg, Time}) ->
             list_to_binary(
                 string:join(
-                    [string:join([Time, atom_to_list(Name)], " "), Msg],
+                    [string:join([Time, Name], " "), Msg],
                     ": "
                 )
             )
@@ -164,7 +165,7 @@ handle_call({speech, {Line}}, _From, Socket) ->
 handle_call({msg, {Name, Msg, Time}}, _From, Socket) ->
     StrMsg = string:join(
         [
-            string:join([Time, atom_to_list(Name)], " "),
+            string:join([Time, Name], " "),
             Msg
         ],
         ": "
